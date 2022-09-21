@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using GlobalType;
 
 public class CharacterController2D : MonoBehaviour
 {   
@@ -9,6 +10,7 @@ public class CharacterController2D : MonoBehaviour
 
     // flags
     public bool below;
+    public GroundType _groundType;
 
     private Vector2 _moveAmount;
     private Vector2 _currentPosition;
@@ -16,6 +18,8 @@ public class CharacterController2D : MonoBehaviour
 
     private Rigidbody2D _rigidbody;
     private CapsuleCollider2D _capsuleCollider;
+
+    private bool _disableGroundCheck;
 
     private Vector2[] _raycastPosition = new Vector2[3];
     private RaycastHit2D[] _raycastHits = new RaycastHit2D[3];
@@ -33,7 +37,7 @@ public class CharacterController2D : MonoBehaviour
 
         _moveAmount = Vector2.zero;
 
-        CheckGrounded();
+        if(!_disableGroundCheck) CheckGrounded();
     }
 
     public void Move(Vector2 movement){
@@ -56,6 +60,7 @@ public class CharacterController2D : MonoBehaviour
             if(hit.collider){
                 _raycastHits[i] = hit;
                 numberOfGroundHits++;
+                _groundType = hit.transform.GetComponent<GroundEffector>().groundType;
             }
         }
 
@@ -71,5 +76,16 @@ public class CharacterController2D : MonoBehaviour
         for(int i = 0; i < _raycastPosition.Length; i++){
             Debug.DrawRay(_raycastPosition[i], dir * raycastDistance, color);
         }
+    }
+
+    public void DisableGroundCheck(float delayTime){
+        below = false;
+        _disableGroundCheck = true;
+        StartCoroutine("EnableGroundCheck", delayTime);
+    }
+
+    IEnumerator EnableGroundCheck(float delayTime){
+        yield return new WaitForSeconds(delayTime);
+        _disableGroundCheck = false;
     }
 }

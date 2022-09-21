@@ -18,6 +18,8 @@ public class PlayerController : MonoBehaviour
     private Vector2 _moveDir;
     private CharacterController2D _characterController;
 
+    
+
     private void Awake() {
         _characterController = GetComponent<CharacterController2D>();
     }
@@ -30,6 +32,7 @@ public class PlayerController : MonoBehaviour
                 _startJump = false;
                 _moveDir.y = jumpSpeed;
                 isJumping = true;
+                _characterController.DisableGroundCheck(0.1f);
             }
         }
         else{
@@ -53,8 +56,10 @@ public class PlayerController : MonoBehaviour
     public void OnJump(InputAction.CallbackContext context){
         if(context.started){
             _startJump = true;
+            _releaseJump = false;
         }
         else if(context.canceled){
+            _startJump = false;
             _releaseJump = true;
         }
     }
