@@ -7,10 +7,15 @@ public class CharacterController2D : MonoBehaviour
 {   
     public float raycastDistance = 0.2f;
     public LayerMask layerMask;
+    public float slopAngleLimit = 45f;
 
     // flags
     public bool below;
     public GroundType _groundType;
+
+    //나중에 private로 변경예정
+    public Vector2 _slopNormal;
+    public float _slopAngle;
 
     private Vector2 _moveAmount;
     private Vector2 _currentPosition;
@@ -31,6 +36,12 @@ public class CharacterController2D : MonoBehaviour
 
     private void FixedUpdate() {
         _lastPosition = _rigidbody.position;
+
+        if(_slopAngle != 0 && below){
+            if(_moveAmount.x > 0f && _slopAngle > 0f || (_moveAmount.x < 0f && _slopAngle < 0f)){
+                _moveAmount.y = -Mathf.Abs(Mathf.Tan(_slopAngle * Mathf.Deg2Rad) * _moveAmount.x);
+            }
+        }
         _currentPosition = _lastPosition + _moveAmount;
 
         _rigidbody.MovePosition(_currentPosition); 
@@ -45,33 +56,38 @@ public class CharacterController2D : MonoBehaviour
     }
 
     private void CheckGrounded(){
-        Vector2  raycastOrigin = _rigidbody.position - new Vector2(0, _capsuleCollider.size.y * 0.5f);
-        _raycastPosition[0] = raycastOrigin+(Vector2.left * _capsuleCollider.size.x * 0.25f + Vector2.up * 0.1f);
-        _raycastPosition[1] = raycastOrigin;
-        _raycastPosition[2] = raycastOrigin+(Vector2.right * _capsuleCollider.size.x * 0.25f + Vector2.up * 0.1f);
+        
+        RaycastHit2D hit = Physics2D.CapsuleCast(_capsuleCollider.bounds.center, _capsuleCollider.size, 
+        CapsuleDirection2D.Vertical, 0f, Vector2.down, raycastDistance, layerMask);
 
-        DrawDebugRays(Vector2.down, Color.green);
+        if(hit.collider){
+            _groundType = DetermineGroundType(hit.collider);
 
-        int numberOfGroundHits = 0;
+            _slopNormal = hit.normal;
+            _slopAngle = Vector2.SignedAngle(_slopNormal, Vector2.up);
 
-        for(int i = 0; i < _raycastPosition.Length; i++){
-            RaycastHit2D hit = Physics2D.Raycast(_raycastPosition[i], Vector2.down, raycastDistance, layerMask);
-
-            if(hit.collider){
-                _raycastHits[i] = hit;
-                numberOfGroundHits++;
-                _groundType = hit.transform.GetComponent<GroundEffector>().groundType;
+            if(_slopAngle < slopAngleLimit || _slopAngle < -slopAngleLimit){
+                below = false;
             }
-        }
-
-        if(numberOfGroundHits > 0){
-            below = true;
+            else{
+                below = true;
+            }
         }
         else{
             below = false;
+            _groundType = GroundType.none;
         }
+        
     }
 
+    private GroundType DetermineGroundType(Collider2D collider){
+        if(collider.GetComponent<GroundEffector>()){
+            GroundEffector groundEffector = collider.GetComponent<GroundEffector>();
+            return groundEffector.groundType;
+        }
+        else return GroundType.LevelGeom;
+    }
+    
     private void DrawDebugRays(Vector2 dir, Color color){
         for(int i = 0; i < _raycastPosition.Length; i++){
             Debug.DrawRay(_raycastPosition[i], dir * raycastDistance, color);

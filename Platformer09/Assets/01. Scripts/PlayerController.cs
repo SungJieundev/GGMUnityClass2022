@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour
         _moveDir.x = _input.x * walkSpeed;
 
         if(_characterController.below){
+            _moveDir.y = 0f;
             if(_startJump){
                 _startJump = false;
                 _moveDir.y = jumpSpeed;
