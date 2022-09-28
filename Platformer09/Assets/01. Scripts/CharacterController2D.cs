@@ -11,6 +11,9 @@ public class CharacterController2D : MonoBehaviour
 
     // flags
     public bool below;
+    public bool _above;
+    public bool _right;
+    public bool _left;
     public GroundType _groundType;
 
     //나중에 private로 변경예정
@@ -49,10 +52,47 @@ public class CharacterController2D : MonoBehaviour
         _moveAmount = Vector2.zero;
 
         if(!_disableGroundCheck) CheckGrounded();
+
+        CheckOtherCollision();
+        //Debug.Log(_disableGroundCheck);
     }
 
     public void Move(Vector2 movement){
         _moveAmount += movement;
+    }
+
+    private void CheckOtherCollision(){
+
+
+        RaycastHit2D leftHit = Physics2D.BoxCast(_capsuleCollider.bounds.center, _capsuleCollider.size 
+        * 0.7f, 0f, Vector2.left, raycastDistance, layerMask);
+
+        if(leftHit.collider){
+            _left = true;
+        }
+        else{
+            _left = false;
+        }
+
+        RaycastHit2D rightHit = Physics2D.BoxCast(_capsuleCollider.bounds.center, _capsuleCollider.size 
+        * 0.7f, 0f, Vector2.right, raycastDistance, layerMask);
+
+        if(rightHit.collider){
+            _right = true;
+        }
+        else{
+            _right = false;
+        }
+
+        RaycastHit2D aboveHit = Physics2D.BoxCast(_capsuleCollider.bounds.center, _capsuleCollider.size 
+        * 0.7f, 0f, Vector2.up, raycastDistance, layerMask);
+
+        if(aboveHit.collider){
+            _above = true;
+        }
+        else{
+            _above = false;
+        }
     }
 
     private void CheckGrounded(){
@@ -66,7 +106,7 @@ public class CharacterController2D : MonoBehaviour
             _slopNormal = hit.normal;
             _slopAngle = Vector2.SignedAngle(_slopNormal, Vector2.up);
 
-            if(_slopAngle < slopAngleLimit || _slopAngle < -slopAngleLimit){
+            if(_slopAngle > slopAngleLimit || _slopAngle < -slopAngleLimit){
                 below = false;
             }
             else{
@@ -77,7 +117,7 @@ public class CharacterController2D : MonoBehaviour
             below = false;
             _groundType = GroundType.none;
         }
-        
+        Debug.Log("below" + below);
     }
 
     private GroundType DetermineGroundType(Collider2D collider){

@@ -50,6 +50,13 @@ public class PlayerController : MonoBehaviour
         _characterController.Move(_moveDir * Time.deltaTime);
     }
 
+    void GravityCalculation(){
+        if(_moveDir.y > 0f && _characterController._above){
+            _moveDir.y = 0f;
+        }
+        _moveDir.y -= gravity * Time.deltaTime;
+    }
+
     public void OnMovement(InputAction.CallbackContext context){
         _input = context.ReadValue<Vector2>();        
     }
