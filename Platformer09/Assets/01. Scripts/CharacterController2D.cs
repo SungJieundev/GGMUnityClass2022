@@ -37,7 +37,7 @@ public class CharacterController2D : MonoBehaviour
         _capsuleCollider = GetComponent<CapsuleCollider2D>();
     }
 
-    private void FixedUpdate() {
+    private void Update() {
         _lastPosition = _rigidbody.position;
 
         if(_slopAngle != 0 && below){
