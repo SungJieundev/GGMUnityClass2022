@@ -4,22 +4,30 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
-{
+{   
+    [Header("Player Properties")]
     public float walkSpeed = 10f;
     public float gravity = 20f;
     public float jumpSpeed = 15f;
     public float doubleJumpSpeed = 10f;
+    public float xWallJumpSpeed = 5f;
+    public float yWallJumpSpeed = 5f;
 
     // player ability toggle;
+    [Header("Player Abilities")]
     public bool canDoubleJump;
     public bool canTripleJump;
+    public bool canWallJump;
 
     // Player state
+    [Header("Player States")]
     public bool isJumping;
     public bool isDoubleJumping;
     public bool isTripleJumping;
+    public bool isWallJumping;
 
     // input flags
+    
     private bool _startJump;
     private bool _releaseJump;
 
@@ -49,6 +57,7 @@ public class PlayerController : MonoBehaviour
             isJumping = false;
             isDoubleJumping = false;
             isTripleJumping = false;
+            isWallJumping = false;
 
             if(_startJump){
                 _startJump = false;
@@ -85,6 +94,21 @@ public class PlayerController : MonoBehaviour
                     }
                 }
 
+                if(canWallJump && (_characterController._left || _characterController._right)){
+                    if(_characterController._left){
+                        _moveDir.x = xWallJumpSpeed;
+                        _moveDir.y = yWallJumpSpeed;
+                        transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+                    }
+                    else if (_characterController._right){
+                        _moveDir.x = -xWallJumpSpeed;
+                        _moveDir.y = yWallJumpSpeed;
+                        transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+                    }
+                    isWallJumping = true;
+                    StartCoroutine(WallJumpWaiter());
+                }
+
                 _startJump = false;
             }
 
@@ -113,5 +137,11 @@ public class PlayerController : MonoBehaviour
             _startJump = false;
             _releaseJump = true;
         }
+    }
+
+    IEnumerator WallJumpWaiter(){
+        isWallJumping = true;
+        yield return new WaitForSeconds(0.4f);
+        isWallJumping = false;
     }
 }
