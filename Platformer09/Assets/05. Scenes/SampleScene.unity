@@ -170,7 +170,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 2.2283716, y: 1}
+    m_SensorSize: {x: 2.2253969, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -187,7 +187,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 58004091}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20.2, y: 1.7, z: -10}
+  m_LocalPosition: {x: 34.9, y: -1, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 971834356}
@@ -855,7 +855,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 415502600}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20.2, y: 1.7, z: 0}
+  m_LocalPosition: {x: 34.9, y: -1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -879,13 +879,16 @@ MonoBehaviour:
   doubleJumpSpeed: 10
   xWallJumpSpeed: 5
   yWallJumpSpeed: 5
+  wallRunSpeed: 8
   canDoubleJump: 1
   canTripleJump: 1
   canWallJump: 1
+  canWallRun: 1
   isJumping: 0
   isDoubleJumping: 0
   isTripleJumping: 0
   isWallJumping: 0
+  isWallRunning: 0
 --- !u!114 &415502607
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1145,7 +1148,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20.2, y: 1.7, z: -10}
+  m_LocalPosition: {x: 34.9, y: -1, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
