@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     public float xWallJumpSpeed = 15f;
     public float yWallJumpSpeed = 15f;
     public float wallRunSpeed = 8f;
+    public float wallSlideAmount = 0.1f;
 
     // player ability toggle;
     [Header("Player Abilities")]
@@ -20,6 +21,7 @@ public class PlayerController : MonoBehaviour
     public bool canTripleJump;
     public bool canWallJump;
     public bool canWallRun;
+    public bool canWallSlide;
 
     // Player state
     [Header("Player States")]
@@ -28,6 +30,7 @@ public class PlayerController : MonoBehaviour
     public bool isTripleJumping;
     public bool isWallJumping;
     public bool isWallRunning;
+    public bool isWallSliding;
 
     // input flags
     
@@ -140,7 +143,18 @@ public class PlayerController : MonoBehaviour
         if(_moveDir.y > 0f && _characterController._above){
             _moveDir.y = 0f;
         }
-        _moveDir.y -= gravity * Time.deltaTime;
+
+        if(canWallSlide && _characterController._left || _characterController._right){
+            if(_moveDir.y <= 0){
+                _moveDir.y -= gravity * wallSlideAmount * Time.deltaTime;
+            }
+            else{
+                _moveDir.y -= gravity * Time.deltaTime;
+            }
+        }
+        else{
+            _moveDir.y -= gravity * Time.deltaTime;
+        }
     }
 
     public void OnMovement(InputAction.CallbackContext context){
