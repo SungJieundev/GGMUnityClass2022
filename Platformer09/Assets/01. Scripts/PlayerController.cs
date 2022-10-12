@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
 {   
     [Header("Player Properties")]
     public float walkSpeed = 10f;
+    public float creepSpeed = 5f;
     public float gravity = 20f;
     public float jumpSpeed = 15f;
     public float doubleJumpSpeed = 10f;
@@ -31,6 +32,8 @@ public class PlayerController : MonoBehaviour
     public bool isWallJumping;
     public bool isWallRunning;
     public bool isWallSliding;
+    public bool isDucking;
+    public bool isCreeping;
 
     // input flags
     
@@ -40,13 +43,19 @@ public class PlayerController : MonoBehaviour
     private Vector2 _input;
     private Vector2 _moveDir;
     private CharacterController2D _characterController;
+    private CapsuleCollider2D _capsuleCollider;
+    private SpriteRenderer _spriteRenderer;
 
+    private Vector2 _originalColliderSize;
     private bool _ableToWallRun;
 
     
 
     private void Awake() {
         _characterController = GetComponent<CharacterController2D>();
+        _capsuleCollider = GetComponent<CapsuleCollider2D>();
+        _originalColliderSize = _capsuleCollider.size;
+        _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Update() {
@@ -74,6 +83,45 @@ public class PlayerController : MonoBehaviour
                 _ableToWallRun = true;
                 isJumping = true;
                 _characterController.DisableGroundCheck(0.1f);
+            }
+
+            //ducking, creeping
+            if(_input.y < 0f){
+                if(!isDucking && !isCreeping){
+                    isDucking = true;
+
+                    // 콜라이더 사이즈 반으로 줄이기
+                    _capsuleCollider.size = new Vector2(_capsuleCollider.size.x, _capsuleCollider.size.y / 2);
+                    // position.y 변경
+                    transform.position = new Vector2(transform.position.x, transform.position.y - (_originalColliderSize.y / 4));
+                    // Sprite 변경
+                    _spriteRenderer.sprite = Resources.Load<Sprite>("directionSpriteUp_crouching");
+                }
+            }
+            else{
+                if(isDucking || isCreeping){
+                    
+                    RaycastHit2D hitCeiling = Physics2D.CapsuleCast(_capsuleCollider.bounds.center, transform.localScale,
+                    CapsuleDirection2D.Vertical, 0f, Vector2.up, _originalColliderSize.y / 2, _characterController.layerMask );
+
+                    if(!hitCeiling.collider){
+
+                        isDucking = false;
+                        isCreeping = false;
+
+                        _capsuleCollider.size = _originalColliderSize;
+                        transform.position = new Vector2(transform.position.x, transform.position.y + (_originalColliderSize.y / 4));
+                        _spriteRenderer.sprite = Resources.Load<Sprite>("directionSpriteUp");
+                    }
+                }
+            }
+
+            // creeping
+            if(isDucking && _moveDir.x != 0){
+                isCreeping = true;
+            }
+            else{
+                isCreeping = false;
             }
         }
         else{ // 공중에
