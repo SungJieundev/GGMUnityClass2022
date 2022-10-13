@@ -126,6 +126,10 @@ public class PlayerController : MonoBehaviour
         }
         else{ // 공중에
 
+            if((isCreeping || isDucking) && _moveDir.y > 0){
+                StartCoroutine(ClearDuckingState());
+            }
+
             if(_releaseJump){
                 _releaseJump = false;
                 
@@ -231,5 +235,22 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         isWallRunning = false;
         _ableToWallRun = false;
+    }
+
+    IEnumerator ClearDuckingState(){
+        yield return new WaitForSeconds(0.05f);
+
+        RaycastHit2D hitCeiling = Physics2D.CapsuleCast(_capsuleCollider.bounds.center, transform.localScale,
+                    CapsuleDirection2D.Vertical, 0f, Vector2.up, _originalColliderSize.y / 2, _characterController.layerMask );
+
+                    if(!hitCeiling.collider){
+
+                        isDucking = false;
+                        isCreeping = false;
+
+                        _capsuleCollider.size = _originalColliderSize;
+                        transform.position = new Vector2(transform.position.x, transform.position.y + (_originalColliderSize.y / 4));
+                        _spriteRenderer.sprite = Resources.Load<Sprite>("directionSpriteUp");
+                    }
     }
 }
