@@ -170,7 +170,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 2.2253969, y: 1}
+    m_SensorSize: {x: 2.1850247, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -753,6 +753,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: b1083395-66db-4d9d-aadf-47c8f43a22b1
     m_ActionName: Player/Jump[/Keyboard/space]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 415502606}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnDash
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: cc21e541-cb78-4d48-8a99-8a2175d6007d
+    m_ActionName: Player/Dash[/Keyboard/leftShift]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -874,21 +890,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   walkSpeed: 10
+  creepSpeed: 5
   gravity: 20
   jumpSpeed: 15
   doubleJumpSpeed: 10
   xWallJumpSpeed: 5
   yWallJumpSpeed: 5
   wallRunSpeed: 8
+  wallSlideAmount: 0.1
+  dashSpeed: 40
+  dashTime: 0.2
+  dashCoolDownTime: 1
   canDoubleJump: 1
   canTripleJump: 1
   canWallJump: 1
   canWallRun: 1
+  canWallSlide: 1
+  canAirDash: 1
+  canGroundDash: 1
   isJumping: 0
   isDoubleJumping: 0
   isTripleJumping: 0
   isWallJumping: 0
   isWallRunning: 0
+  isWallSliding: 0
+  isDucking: 0
+  isCreeping: 0
+  isDashing: 0
 --- !u!114 &415502607
 MonoBehaviour:
   m_ObjectHideFlags: 0
