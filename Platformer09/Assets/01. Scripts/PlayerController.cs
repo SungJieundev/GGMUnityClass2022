@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    #region public properties
     [Header("Player Properties")]
     public float walkSpeed = 10f;
     public float creepSpeed = 5f;
@@ -41,8 +42,10 @@ public class PlayerController : MonoBehaviour
     public bool isCreeping;
     public bool isDashing;
 
-    // input flags
+    #endregion
 
+    #region private properties
+    // input flags
     private bool _startJump;
     private bool _releaseJump;
 
@@ -55,8 +58,8 @@ public class PlayerController : MonoBehaviour
     private Vector2 _originalColliderSize;
     private bool _ableToWallRun;
     private bool _facingRight;
-
-
+    private float _dashTimer = 0f;
+    #endregion
 
     private void Awake()
     {
@@ -68,11 +71,10 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        _dashTimer += Time.deltaTime;
 
         if (!isWallJumping)
         {
-
-            _moveDir.x = _input.x * walkSpeed;
 
             if (_moveDir.x > 0f)
             {
@@ -96,6 +98,13 @@ public class PlayerController : MonoBehaviour
                     _moveDir.x = -dashSpeed;
                 }
                 _moveDir.y = 0f;
+            }
+            else if( isCreeping){
+                _moveDir.x = _input.x * creepSpeed;
+                
+            }
+            else{
+                _moveDir.x = _input.x * walkSpeed;
             }
         }
 
@@ -187,7 +196,7 @@ public class PlayerController : MonoBehaviour
             {
 
                 // triple jumping
-                if (canTripleJump && (!_characterController._left && !_characterController._right))
+                if (canTripleJump && (!_characterController.left && !_characterController.right))
                 {
                     if (isDoubleJumping && !isTripleJumping)
                     {
@@ -197,7 +206,7 @@ public class PlayerController : MonoBehaviour
                 }
 
                 // double jumping
-                if (canDoubleJump && (!_characterController._left && !_characterController._right))
+                if (canDoubleJump && (!_characterController.left && !_characterController.right))
                 {
                     if (!isDoubleJumping)
                     {
@@ -206,15 +215,15 @@ public class PlayerController : MonoBehaviour
                     }
                 }
 
-                if (canWallJump && (_characterController._left || _characterController._right))
+                if (canWallJump && (_characterController.left || _characterController.right))
                 {
-                    if (_characterController._left)
+                    if (_characterController.left)
                     {
                         _moveDir.x = xWallJumpSpeed;
                         _moveDir.y = yWallJumpSpeed;
                         transform.rotation = Quaternion.Euler(0f, 0f, 0f);
                     }
-                    else if (_characterController._right)
+                    else if (_characterController.right)
                     {
                         _moveDir.x = -xWallJumpSpeed;
                         _moveDir.y = yWallJumpSpeed;
@@ -228,7 +237,7 @@ public class PlayerController : MonoBehaviour
             }
 
             // wall running
-            if (canWallRun && _characterController._left || _characterController._right)
+            if (canWallRun && _characterController.left || _characterController.right)
             {
 
                 if (_input.y > 0f && _ableToWallRun)
@@ -247,12 +256,12 @@ public class PlayerController : MonoBehaviour
 
     void GravityCalculation()
     {
-        if (_moveDir.y > 0f && _characterController._above)
+        if (_moveDir.y > 0f && _characterController.above)
         {
             _moveDir.y = 0f;
         }
 
-        if (canWallSlide && _characterController._left || _characterController._right)
+        if (canWallSlide && _characterController.left || _characterController.right)
         {
             if (_moveDir.y <= 0)
             {
@@ -269,6 +278,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    #region  Input Methods
     public void OnMovement(InputAction.CallbackContext context)
     {
         _input = context.ReadValue<Vector2>();
@@ -291,7 +301,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnDash(InputAction.CallbackContext context)
     {
-        if (context.started)
+        if (context.started && _dashTimer >= dashCoolDownTime)
         {
             if ((canAirDash && !_characterController.below) || (canGroundDash && _characterController.below))
             {
@@ -299,12 +309,15 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
+#endregion 
+    
+    #region coroutines
     IEnumerator Dash()
     {
         isDashing = true;
         yield return new WaitForSeconds(dashTime);
         isDashing = false;
+        _dashTimer = 0f;
     }
 
     IEnumerator WallJumpWaiter()
@@ -340,4 +353,5 @@ public class PlayerController : MonoBehaviour
             _spriteRenderer.sprite = Resources.Load<Sprite>("directionSpriteUp");
         }
     }
+#endregion
 }

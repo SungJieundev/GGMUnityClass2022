@@ -11,14 +11,17 @@ public class CharacterController2D : MonoBehaviour
 
     // flags
     public bool below;
-    public bool _above;
-    public bool _right;
-    public bool _left;
-    public GroundType _groundType;
+    public bool above;
+    public bool right;
+    public bool left;
+    public GroundType groundType;
+    public GroundType ceilingType;
+    public WallType rightWallType;
+    public WallType leftWallType;
 
     //나중에 private로 변경예정
-    public Vector2 _slopNormal;
-    public float _slopAngle;
+    public Vector2 slopNormal;
+    public float slopAngle;
 
     private Vector2 _moveAmount;
     private Vector2 _currentPosition;
@@ -40,9 +43,10 @@ public class CharacterController2D : MonoBehaviour
     private void Update() {
         _lastPosition = _rigidbody.position;
 
-        if(_slopAngle != 0 && below){
-            if(_moveAmount.x > 0f && _slopAngle > 0f || (_moveAmount.x < 0f && _slopAngle < 0f)){
-                _moveAmount.y = -Mathf.Abs(Mathf.Tan(_slopAngle * Mathf.Deg2Rad) * _moveAmount.x);
+        if(slopAngle != 0 && below)
+        {
+            if(_moveAmount.x > 0f && slopAngle > 0f || (_moveAmount.x < 0f && slopAngle < 0f)){
+                _moveAmount.y = -Mathf.Abs(Mathf.Tan(slopAngle * Mathf.Deg2Rad) * _moveAmount.x);
             }
         }
         _currentPosition = _lastPosition + _moveAmount;
@@ -68,30 +72,36 @@ public class CharacterController2D : MonoBehaviour
         * 0.7f, 0f, Vector2.left, raycastDistance, layerMask);
 
         if(leftHit.collider){
-            _left = true;
+            leftWallType = DetermineWallType(leftHit.collider);
+            left = true;
         }
         else{
-            _left = false;
+            leftWallType = WallType.None;
+            left = false;
         }
 
         RaycastHit2D rightHit = Physics2D.BoxCast(_capsuleCollider.bounds.center, _capsuleCollider.size 
         * 0.7f, 0f, Vector2.right, raycastDistance, layerMask);
 
         if(rightHit.collider){
-            _right = true;
+            rightWallType = DetermineWallType(rightHit.collider);
+            right = true;
         }
         else{
-            _right = false;
+            rightWallType = WallType.None;
+            right = false;
         }
 
         RaycastHit2D aboveHit = Physics2D.BoxCast(_capsuleCollider.bounds.center, _capsuleCollider.size 
         * 0.7f, 0f, Vector2.up, raycastDistance, layerMask);
 
         if(aboveHit.collider){
-            _above = true;
+            ceilingType = DetermineGroundType(aboveHit.collider);
+            above = true;
         }
         else{
-            _above = false;
+            ceilingType = GroundType.none;
+            above = false;
         }
     }
 
@@ -101,12 +111,12 @@ public class CharacterController2D : MonoBehaviour
         CapsuleDirection2D.Vertical, 0f, Vector2.down, raycastDistance, layerMask);
 
         if(hit.collider){
-            _groundType = DetermineGroundType(hit.collider);
+            groundType = DetermineGroundType(hit.collider);
 
-            _slopNormal = hit.normal;
-            _slopAngle = Vector2.SignedAngle(_slopNormal, Vector2.up);
+            slopNormal = hit.normal;
+            slopAngle = Vector2.SignedAngle(slopNormal, Vector2.up);
 
-            if(_slopAngle > slopAngleLimit || _slopAngle < -slopAngleLimit){
+            if(slopAngle > slopAngleLimit || slopAngle < -slopAngleLimit){
                 below = false;
             }
             else{
@@ -115,7 +125,7 @@ public class CharacterController2D : MonoBehaviour
         }
         else{
             below = false;
-            _groundType = GroundType.none;
+            groundType = GroundType.none;
         }
         Debug.Log("below" + below);
     }
@@ -126,6 +136,14 @@ public class CharacterController2D : MonoBehaviour
             return groundEffector.groundType;
         }
         else return GroundType.LevelGeom;
+    }
+
+    private WallType DetermineWallType(Collider2D collider){
+        if(collider.GetComponent<WallEffector>()){
+            WallEffector WallEffector = collider.GetComponent<WallEffector>();
+            return WallEffector.wallType;
+        }
+        else return WallType.Normal;
     }
     
     private void DrawDebugRays(Vector2 dir, Color color){
