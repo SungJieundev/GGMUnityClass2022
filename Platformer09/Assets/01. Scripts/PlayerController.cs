@@ -269,7 +269,7 @@ public class PlayerController : MonoBehaviour
         if (_moveDir.y > 0f && _characterController.above)
         {   
             if(_characterController.ceilingType == GlobalType.GroundType.OneWayPlatform){
-                print("ec");
+                
                 StartCoroutine(DisableOneWayPlatform(false));
             }
             else{
@@ -376,7 +376,12 @@ public class PlayerController : MonoBehaviour
         GameObject tempOneWayPlatform = null;
 
         if(checkBelow){
-            
+            Vector2 raycastBelow = transform.position - new Vector3(0, _capsuleCollider.size.y * 0.5f, 0);
+            RaycastHit2D hit = Physics2D.Raycast(raycastBelow, Vector2.down, 0.2f, _characterController.layerMask);
+
+            if(hit.collider){
+                tempOneWayPlatform = hit.collider.gameObject;
+            }
         }
         else{
 
@@ -393,7 +398,7 @@ public class PlayerController : MonoBehaviour
             tempOneWayPlatform.GetComponent<EdgeCollider2D>().enabled = false;
         }
 
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(0.4f);
 
         if(tempOneWayPlatform){
             tempOneWayPlatform.GetComponent<EdgeCollider2D>().enabled = true;

@@ -92,8 +92,8 @@ public class CharacterController2D : MonoBehaviour
             right = false;
         }
 
-        RaycastHit2D aboveHit = Physics2D.BoxCast(_capsuleCollider.bounds.center, _capsuleCollider.size 
-        * 0.7f, 0f, Vector2.up, raycastDistance, layerMask);
+        RaycastHit2D aboveHit = Physics2D.CapsuleCast(_capsuleCollider.bounds.center, _capsuleCollider.size, 
+        CapsuleDirection2D.Vertical, 0f, Vector2.up, raycastDistance, layerMask);
 
         if(aboveHit.collider){
             ceilingType = DetermineGroundType(aboveHit.collider);
