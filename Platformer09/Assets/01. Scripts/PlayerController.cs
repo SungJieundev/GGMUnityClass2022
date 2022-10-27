@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using GlobalType;
 
 public class PlayerController : MonoBehaviour
 {
@@ -121,10 +122,19 @@ public class PlayerController : MonoBehaviour
             if (_startJump)
             {
                 _startJump = false;
-                _moveDir.y = jumpSpeed;
-                _ableToWallRun = true;
+
+                if(isDucking && _characterController.groundType == GroundType.OneWayPlatform){
+                    StartCoroutine(DisableOneWayPlatform(true));
+                }
+                else{
+
+                    _moveDir.y = jumpSpeed;
+                }
+                
                 isJumping = true;
+                _ableToWallRun = true;
                 _characterController.DisableGroundCheck(0.1f);
+                
             }
 
             //ducking, creeping
@@ -257,8 +267,15 @@ public class PlayerController : MonoBehaviour
     void GravityCalculation()
     {
         if (_moveDir.y > 0f && _characterController.above)
-        {
-            _moveDir.y = 0f;
+        {   
+            if(_characterController.ceilingType == GlobalType.GroundType.OneWayPlatform){
+                print("ec");
+                StartCoroutine(DisableOneWayPlatform(false));
+            }
+            else{
+
+                _moveDir.y = 0f;
+            }
         }
 
         if (canWallSlide && _characterController.left || _characterController.right)
@@ -352,6 +369,36 @@ public class PlayerController : MonoBehaviour
             transform.position = new Vector2(transform.position.x, transform.position.y + (_originalColliderSize.y / 4));
             _spriteRenderer.sprite = Resources.Load<Sprite>("directionSpriteUp");
         }
+    }
+
+    IEnumerator DisableOneWayPlatform(bool checkBelow){
+        
+        GameObject tempOneWayPlatform = null;
+
+        if(checkBelow){
+            
+        }
+        else{
+
+            Vector2 raycastAbove = transform.position + new Vector3(0, _capsuleCollider.size.y * 0.5f, 0);
+            RaycastHit2D hit = Physics2D.Raycast(raycastAbove, Vector2.up, 0.4f, _characterController.layerMask);
+
+            if(hit.collider){
+                tempOneWayPlatform = hit.collider.gameObject;
+            }
+        }
+
+
+        if(tempOneWayPlatform){
+            tempOneWayPlatform.GetComponent<EdgeCollider2D>().enabled = false;
+        }
+
+        yield return new WaitForSeconds(0.25f);
+
+        if(tempOneWayPlatform){
+            tempOneWayPlatform.GetComponent<EdgeCollider2D>().enabled = true;
+        }
+
     }
 #endregion
 }
